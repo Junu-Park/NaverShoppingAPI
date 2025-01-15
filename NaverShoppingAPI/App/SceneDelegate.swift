@@ -19,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
         let naviController = UINavigationController(rootViewController: SearchMainViewController())
+        naviController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white, .font: UIFont.boldSystemFont(ofSize: 17)]
         window?.rootViewController = naviController
         window?.makeKeyAndVisible()
     }
