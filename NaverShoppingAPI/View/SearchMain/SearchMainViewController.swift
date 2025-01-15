@@ -27,6 +27,7 @@ class SearchMainViewController: CustomViewController {
     func configureNavigationItem() {
         navigationItem.title = "아서의 쇼핑쇼핑"
         navigationItem.searchController = CustomSearchController()
+        navigationItem.searchController?.searchBar.searchTextField.delegate = self
     }
     
     override func configureHierarchy() {
@@ -38,6 +39,20 @@ class SearchMainViewController: CustomViewController {
             make.center.equalTo(view.safeAreaLayoutGuide)
             make.horizontalEdges.equalToSuperview().inset(32)
             make.height.equalTo(mainImageView.snp.width)
+        }
+    }
+}
+
+// TODO: UISearchBarDelegate / UISearchTextFieldDelegate 중에 뭘 사용해야할까?
+extension SearchMainViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text?.count ?? 0 > 1 {
+            view.endEditing(true)
+            navigationController?.pushViewController(CustomViewController(), animated: true)
+            textField.text = nil
+            return true
+        } else {
+            return false
         }
     }
 }
