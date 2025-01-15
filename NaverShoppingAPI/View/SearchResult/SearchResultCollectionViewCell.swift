@@ -15,6 +15,7 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
     let imageView: UIImageView = {
         let iv: UIImageView = UIImageView()
         iv.contentMode = .scaleAspectFit
+        iv.layer.cornerRadius = 10
         return iv
     }()
     
