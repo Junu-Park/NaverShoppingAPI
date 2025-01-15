@@ -66,6 +66,12 @@ extension SearchResultViewController {
         }
     }
     
+    func removeBoldTag(_ string: String) -> String {
+        var replacedString: String = string.replacingOccurrences(of: "<b>", with: "")
+        replacedString = replacedString.replacingOccurrences(of: "</b>", with: "")
+        return replacedString
+    }
+    
     func naverShoppingSearchRequest() {
         let urlString = APIURL.naverShoppingBaseURL + "query=\(searchTerm)"
         let headers: HTTPHeaders = [
@@ -98,7 +104,7 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
         let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
         if let data = searchData?.items[indexPath.row]{
             cell.imageView.backgroundColor = .systemTeal
-            cell.itemNameLabel.text = data.title
+            cell.itemNameLabel.text = removeBoldTag(data.title)
             cell.mallNameLabel.text = data.mallName
             cell.priceLabel.text = Int(data.lowPrice)!.formatted()
         }
