@@ -25,7 +25,7 @@ struct SearchResultItem: Decodable {
     var title: String
     var mallName: String
     var image: String
-    var lowPrice: Double
+    var lowPrice: String
     
     enum CodingKeys: String, CodingKey {
         case title
