@@ -25,6 +25,8 @@ class SearchResultViewController: CustomViewController {
     
     var searchTerm: String = ""
     
+    let searchDisplay: Int = 100
+    
     var searchData: SearchResult? {
         didSet {
             resultCountLabel.text = self.getResultCountText()
@@ -74,7 +76,7 @@ extension SearchResultViewController {
     }
     
     func naverShoppingSearchRequest() {
-        let urlString = APIURL.naverShoppingBaseURL + "query=\(searchTerm)"
+        let urlString = APIURL.naverShoppingBaseURL + "query=\(searchTerm)" + "&display=\(searchDisplay)"
         let headers: HTTPHeaders = [
             "X-Naver-Client-Id": APIKey.naverShoppingID,
             "X-Naver-Client-Secret": APIKey.naverShoppingScret
