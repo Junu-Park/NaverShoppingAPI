@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Alamofire
 import SnapKit
 
 class SearchResultViewController: CustomViewController {
@@ -23,12 +24,18 @@ class SearchResultViewController: CustomViewController {
     
     var searchTerm: String = ""
     
-    var data: SearchResult?
+    var searchData: SearchResult? {
+        didSet {
+            resultCountLabel.text = self.getResultCountText()
+            resultCollectionView.reloadData()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = searchTerm
         connectionCollectionView()
+        naverShoppingSearchRequest()
     }
     
     override func configureHierarchy() {
@@ -52,11 +59,26 @@ class SearchResultViewController: CustomViewController {
 
 extension SearchResultViewController {
     func getResultCountText() -> String {
-        
-        if let data {
-            return "\(data.totalCount.formatted()) 개의 검색 결과"
+        if let searchData {
+            return "\(searchData.totalCount.formatted()) 개의 검색 결과"
         } else {
             return "0 개의 검색 결과"
+        }
+    }
+    
+    func naverShoppingSearchRequest() {
+        let urlString = APIURL.naverShoppingBaseURL + "query=\(searchTerm)"
+        let headers: HTTPHeaders = [
+            "X-Naver-Client-Id": APIKey.naverShoppingID,
+            "X-Naver-Client-Secret": APIKey.naverShoppingScret
+        ]
+        AF.request(urlString, method: .get, headers: headers).validate(statusCode: 200..<300).responseDecodable(of: SearchResult.self) { response in
+            switch response.result {
+            case .success(let data):
+                self.searchData = data
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 }
@@ -69,11 +91,17 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return data?.items.count ?? 0
+        return searchData?.items.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
+        if let data = searchData?.items[indexPath.row]{
+            cell.imageView.backgroundColor = .systemTeal
+            cell.itemNameLabel.text = data.title
+            cell.mallNameLabel.text = data.mallName
+            cell.priceLabel.text = Int(data.lowPrice)!.formatted()
+        }
         
         return cell
     }
