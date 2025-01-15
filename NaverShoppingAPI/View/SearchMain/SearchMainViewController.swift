@@ -7,8 +7,17 @@
 
 import UIKit
 
-class SearchMainViewController: UIViewController {
+import SnapKit
 
+class SearchMainViewController: CustomViewController {
+
+    let mainImageView: UIImageView = {
+        let iv: UIImageView = UIImageView()
+        iv.image = UIImage(resource: .wallet)
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -18,5 +27,17 @@ class SearchMainViewController: UIViewController {
     func configureNavigationItem() {
         navigationItem.title = "아서의 쇼핑쇼핑"
         navigationItem.searchController = CustomSearchController()
+    }
+    
+    override func configureHierarchy() {
+        view.addSubview(mainImageView)
+    }
+    
+    override func configureLayout() {
+        mainImageView.snp.makeConstraints { make in
+            make.center.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalToSuperview().inset(32)
+            make.height.equalTo(mainImageView.snp.width)
+        }
     }
 }
