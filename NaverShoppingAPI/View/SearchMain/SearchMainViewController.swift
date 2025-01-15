@@ -49,7 +49,9 @@ extension SearchMainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField.text?.count ?? 0 > 1 {
             view.endEditing(true)
-            navigationController?.pushViewController(CustomViewController(), animated: true)
+            let nextVC = SearchResultViewController()
+            nextVC.navigationItem.title = textField.text
+            navigationController?.pushViewController(nextVC, animated: true)
             textField.text = nil
             return true
         } else {
