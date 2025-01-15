@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		515543ED2D37BA6F0009C664 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 515543EC2D37BA6F0009C664 /* SnapKit */; };
 		5155445F2D37E2AC0009C664 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5155445E2D37E2AC0009C664 /* .gitignore */; };
+		515544882D37F4F80009C664 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 515544872D37F4F80009C664 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				515543ED2D37BA6F0009C664 /* SnapKit in Frameworks */,
+				515544882D37F4F80009C664 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 			name = NaverShoppingAPI;
 			packageProductDependencies = (
 				515543EC2D37BA6F0009C664 /* SnapKit */,
+				515544872D37F4F80009C664 /* Alamofire */,
 			);
 			productName = NaverShoppingAPI;
 			productReference = 5155436F2D3799B00009C664 /* NaverShoppingAPI.app */;
@@ -118,6 +121,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				515543EB2D37BA6F0009C664 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				515544862D37F4F80009C664 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 515543702D3799B00009C664 /* Products */;
@@ -366,6 +370,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		515544862D37F4F80009C664 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -373,6 +385,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 515543EB2D37BA6F0009C664 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		515544872D37F4F80009C664 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 515544862D37F4F80009C664 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
