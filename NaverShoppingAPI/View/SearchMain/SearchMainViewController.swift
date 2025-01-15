@@ -12,5 +12,10 @@ class SearchMainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureNavigationItem()
+    }
+    
+    func configureNavigationItem() {
+        navigationItem.title = "아서의 쇼핑쇼핑"
     }
 }
