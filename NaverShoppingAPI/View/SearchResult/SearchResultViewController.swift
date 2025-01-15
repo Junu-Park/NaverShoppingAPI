@@ -8,6 +8,7 @@
 import UIKit
 
 import Alamofire
+import Kingfisher
 import SnapKit
 
 class SearchResultViewController: CustomViewController {
@@ -103,7 +104,8 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
         if let data = searchData?.items[indexPath.row]{
-            cell.imageView.backgroundColor = .systemTeal
+            let url = URL(string: data.image)
+            cell.imageView.kf.setImage(with: url)
             cell.itemNameLabel.text = removeBoldTag(data.title)
             cell.mallNameLabel.text = data.mallName
             cell.priceLabel.text = Int(data.lowPrice)!.formatted()
