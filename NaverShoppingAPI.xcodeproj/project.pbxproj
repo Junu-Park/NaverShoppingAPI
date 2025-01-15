@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		515543ED2D37BA6F0009C664 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 515543EC2D37BA6F0009C664 /* SnapKit */; };
+		5155445F2D37E2AC0009C664 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5155445E2D37E2AC0009C664 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5155436F2D3799B00009C664 /* NaverShoppingAPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NaverShoppingAPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5155445E2D37E2AC0009C664 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,6 +52,7 @@
 		515543662D3799B00009C664 = {
 			isa = PBXGroup;
 			children = (
+				5155445E2D37E2AC0009C664 /* .gitignore */,
 				515543712D3799B00009C664 /* NaverShoppingAPI */,
 				515543702D3799B00009C664 /* Products */,
 			);
@@ -131,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5155445F2D37E2AC0009C664 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
