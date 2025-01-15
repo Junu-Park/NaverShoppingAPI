@@ -17,5 +17,6 @@ class SearchMainViewController: UIViewController {
     
     func configureNavigationItem() {
         navigationItem.title = "아서의 쇼핑쇼핑"
+        navigationItem.searchController = CustomSearchController()
     }
 }
