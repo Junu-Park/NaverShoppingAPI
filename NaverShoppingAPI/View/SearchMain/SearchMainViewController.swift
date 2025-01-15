@@ -26,6 +26,7 @@ class SearchMainViewController: CustomViewController {
     
     func configureNavigationItem() {
         navigationItem.title = "아서의 쇼핑쇼핑"
+        navigationItem.backButtonDisplayMode = .minimal
         navigationItem.searchController = CustomSearchController()
         navigationItem.searchController?.searchBar.searchTextField.delegate = self
     }
