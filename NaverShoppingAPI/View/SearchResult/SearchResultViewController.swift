@@ -21,10 +21,13 @@ class SearchResultViewController: CustomViewController {
     
     lazy var resultCollectionView: SearchResultCollectionView = SearchResultCollectionView(superView: view)
     
+    var searchTerm: String = ""
+    
     var data: SearchResult?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = searchTerm
         connectionCollectionView()
     }
     
