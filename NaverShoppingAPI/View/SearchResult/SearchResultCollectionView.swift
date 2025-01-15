@@ -12,7 +12,7 @@ class SearchResultCollectionView: UICollectionView {
     init(superView : UIView) {
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: (superView.frame.width - 48) / 2, height: superView.frame.height / 4)
+        layout.itemSize = CGSize(width: (superView.frame.width - 48) / 2, height: superView.frame.height / 3.5)
         super.init(frame: .zero, collectionViewLayout: layout)
         register(SearchResultCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultCollectionViewCell.id)
         backgroundColor = UIColor.clear
