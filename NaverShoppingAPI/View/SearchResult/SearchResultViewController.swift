@@ -7,12 +7,13 @@
 
 import UIKit
 
-import Alamofire
 import Kingfisher
 import SnapKit
 
 class SearchResultViewController: CustomViewController {
 
+    let networkManager: NetworkManager = NetworkManager.shared
+    
     lazy var resultCountLabel: UILabel = {
         let lb: UILabel = UILabel()
         lb.textColor = UIColor.systemGreen
@@ -25,20 +26,37 @@ class SearchResultViewController: CustomViewController {
     
     var searchTerm: String = ""
     
-    let searchDisplay: Int = 100
-    
     var searchData: SearchResult? {
         didSet {
-            resultCountLabel.text = self.getResultCountText()
-            resultCollectionView.reloadData()
+            self.resultCollectionView.reloadData()
+        }
+    }
+    
+    var searchSort: SortOption = .accuracy {
+        didSet(oldValue) {
+            if oldValue != searchSort {
+                self.resultCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+                networkManager.resetSharedDataWithChangeSort(sort: searchSort)
+                networkManager.naverShoppingSearchRequest { data in
+                    self.searchData = data
+                }
+            }
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        networkManager.setQuery(searchTerm)
         navigationItem.title = searchTerm
         connectionCollectionView()
-        naverShoppingSearchRequest()
+        networkManager.naverShoppingSearchRequest { data in
+            self.searchData = data
+            self.resultCountLabel.text = self.getResultCountText()
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        networkManager.resetAllSharedData()
     }
     
     override func configureHierarchy() {
@@ -62,11 +80,7 @@ class SearchResultViewController: CustomViewController {
 
 extension SearchResultViewController {
     func getResultCountText() -> String {
-        if let searchData {
-            return "\(searchData.totalCount.formatted()) 개의 검색 결과"
-        } else {
-            return "0 개의 검색 결과"
-        }
+        return "\(networkManager.getTotalCount().formatted()) 개의 검색 결과"
     }
     
     func removeBoldTag(_ string: String) -> String {
@@ -75,20 +89,8 @@ extension SearchResultViewController {
         return replacedString
     }
     
-    func naverShoppingSearchRequest() {
-        let urlString = APIURL.naverShoppingBaseURL + "query=\(searchTerm)" + "&display=\(searchDisplay)"
-        let headers: HTTPHeaders = [
-            "X-Naver-Client-Id": APIKey.naverShoppingID,
-            "X-Naver-Client-Secret": APIKey.naverShoppingScret
-        ]
-        AF.request(urlString, method: .get, headers: headers).validate(statusCode: 200..<300).responseDecodable(of: SearchResult.self) { response in
-            switch response.result {
-            case .success(let data):
-                self.searchData = data
-            case .failure(let error):
-                print(error)
-            }
-        }
+    @objc func sortButtonTapped(_ sender: SortOptionButton) {
+        searchSort = sender.sortOption
     }
 }
 
@@ -114,10 +116,6 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
         return header
     }
     
-    @objc func sortButtonTapped(_ sender: SortOptionButton) {
-        searchSort = sender.sortOption
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 50)
     }
@@ -128,14 +126,20 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
+        
         if let data = searchData?.items[indexPath.row]{
             let url = URL(string: data.image)
             cell.imageView.kf.setImage(with: url)
-            cell.itemNameLabel.text = removeBoldTag(data.title)
+            cell.itemNameLabel.text = removeBoldTag(data.itemName)
             cell.mallNameLabel.text = data.mallName
             cell.priceLabel.text = Int(data.lowPrice)!.formatted()
         }
         
+        if (indexPath.item + 2) == networkManager.getPageOffset() {
+            networkManager.naverShoppingSearchRequest { data in
+                self.searchData?.items += data.items
+            }
+        }
         return cell
     }
 }
