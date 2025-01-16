@@ -10,11 +10,17 @@ import UIKit
 class SearchResultCollectionView: UICollectionView {
     
     init(superView : UIView) {
+        
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.itemSize = CGSize(width: (superView.frame.width - 48) / 2, height: superView.frame.height / 3.5)
+        layout.sectionHeadersPinToVisibleBounds = true
+        
         super.init(frame: .zero, collectionViewLayout: layout)
+        
         register(SearchResultCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultCollectionViewCell.id)
+        register(SearchResultCollectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id)
+        
         backgroundColor = UIColor.clear
     }
     

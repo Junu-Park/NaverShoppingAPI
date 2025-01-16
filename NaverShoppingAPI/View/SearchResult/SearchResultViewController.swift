@@ -92,11 +92,34 @@ extension SearchResultViewController {
     }
 }
 
-extension SearchResultViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension SearchResultViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func connectionCollectionView() {
         resultCollectionView.delegate = self
         resultCollectionView.dataSource = self
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = resultCollectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
+        
+        header.selectedSortOption = self.searchSort
+        
+        header.subviews.forEach { view in
+            let button = view as! SortOptionButton
+            if button.sortOption == self.searchSort {
+                button.isSelect = true
+            }
+            button.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
+        }
+        return header
+    }
+    
+    @objc func sortButtonTapped(_ sender: SortOptionButton) {
+        searchSort = sender.sortOption
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
