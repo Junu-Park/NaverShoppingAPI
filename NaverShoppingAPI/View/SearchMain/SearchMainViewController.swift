@@ -48,7 +48,7 @@ class SearchMainViewController: CustomViewController {
 // TODO: UISearchBarDelegate / UISearchTextFieldDelegate 중에 뭘 사용해야할까?
 extension SearchMainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let text = textField.text, text.count > 1 {
+        if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), text.count > 1 {
             view.endEditing(true)
             let nextVC = SearchResultViewController()
             nextVC.searchTerm = text
