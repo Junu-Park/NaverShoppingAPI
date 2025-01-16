@@ -9,8 +9,8 @@ import UIKit
 
 class CustomSearchController: UISearchController {
     
-    init() {
-        super.init(searchResultsController: nil)
+    override init(searchResultsController: UIViewController?) {
+        super.init(searchResultsController: searchResultsController)
         
         searchBar.tintColor = UIColor.white
         searchBar.showsCancelButton = false
