@@ -56,7 +56,38 @@ extension SearchMainViewController: UITextFieldDelegate {
             textField.text = nil
             return true
         } else {
+            present(setActionSheet {
+                // TODO: becomeFirstResponder에 대해 알아보기
+                self.navigationItem.searchController?.searchBar.searchTextField.becomeFirstResponder()
+            }, animated: true)
             return false
         }
+    }
+}
+
+extension SearchMainViewController {
+    func setAlert(completionHandler: @escaping () -> ()) -> UIAlertController {
+        let ac = UIAlertController(title: "검색어 입력 오류", message: "검색어는 공백 제외 2글자 이상 입력해주세요.", preferredStyle: .alert)
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            completionHandler()
+        }
+        ac.addAction(cancelAction)
+        ac.addAction(confirmAction)
+        
+        return ac
+    }
+    
+    func setActionSheet(completionHandler: @escaping () -> ()) -> UIAlertController {
+        let ac = UIAlertController(title: "검색어는 공백 제외 2글자 이상 입력해주세요.", message: nil, preferredStyle: .actionSheet)
+
+        let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+            completionHandler()
+        }
+        ac.addAction(confirmAction)
+        
+        return ac
     }
 }
