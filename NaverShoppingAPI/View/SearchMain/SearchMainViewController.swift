@@ -28,7 +28,7 @@ final class SearchMainViewController: CustomViewController {
         self.viewModel.outputQuery.closure = { [weak self] query in
             self?.view.endEditing(true)
             let nextVC = SearchResultViewController()
-            nextVC.searchTerm = query
+            nextVC.viewModel.inputQuery.value = query
             self?.navigationController?.pushViewController(nextVC, animated: true)
             self?.navigationItem.searchController?.searchBar.text = nil
         }

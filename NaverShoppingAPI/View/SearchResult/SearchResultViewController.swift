@@ -10,53 +10,40 @@ import UIKit
 import Kingfisher
 import SnapKit
 
-class SearchResultViewController: CustomViewController {
-
-    let networkManager: NetworkManager = NetworkManager.shared
+final class SearchResultViewController: CustomViewController {
     
-    lazy var resultCountLabel: UILabel = {
+    private lazy var resultCountLabel: UILabel = {
         let lb: UILabel = UILabel()
         lb.textColor = UIColor.systemGreen
         lb.font = UIFont.boldSystemFont(ofSize: 13)
-        lb.text = getResultCountText()
         return lb
     }()
     
-    lazy var resultCollectionView: SearchResultCollectionView = SearchResultCollectionView(superView: view)
+    private lazy var resultCollectionView: SearchResultCollectionView = SearchResultCollectionView(superView: view)
     
-    var searchTerm: String = ""
-    
-    var searchData: SearchResult? {
-        didSet {
-            self.resultCollectionView.reloadData()
-        }
-    }
-    
-    var searchSort: SortOption = .accuracy {
-        didSet(oldValue) {
-            if oldValue != searchSort {
-                self.resultCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-                networkManager.resetSharedDataWithChangeSort(sort: searchSort)
-                networkManager.naverShoppingSearchRequest { data in
-                    self.searchData = data
-                }
-            }
-        }
-    }
+    let viewModel: SearchResultViewModel = SearchResultViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        networkManager.setQuery(searchTerm)
-        navigationItem.title = searchTerm
-        connectionCollectionView()
-        networkManager.naverShoppingSearchRequest { data in
-            self.searchData = data
-            self.resultCountLabel.text = self.getResultCountText()
+        
+        self.connectionCollectionView()
+        
+        self.viewModel.outputQuery.bind { [weak self] query in
+            self?.navigationItem.title = query
+        }
+        
+        self.viewModel.outputData.closure = { [weak self] data in
+            
+            self?.resultCollectionView.reloadData()
+        }
+        
+        self.viewModel.outputTotal.bind { [weak self] count in
+            self?.resultCountLabel.text = "\(count.formatted()) 개의 검색 결과"
         }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        networkManager.resetAllSharedData()
+        self.viewModel.inputReset.value = ()
     }
     
     override func configureHierarchy() {
@@ -79,9 +66,6 @@ class SearchResultViewController: CustomViewController {
 }
 
 extension SearchResultViewController {
-    func getResultCountText() -> String {
-        return "\(networkManager.getTotalCount().formatted()) 개의 검색 결과"
-    }
     
     func removeBoldTag(_ string: String) -> String {
         var replacedString: String = string.replacingOccurrences(of: "<b>", with: "")
@@ -90,7 +74,7 @@ extension SearchResultViewController {
     }
     
     @objc func sortButtonTapped(_ sender: SortOptionButton) {
-        searchSort = sender.sortOption
+        self.viewModel.inputSortOption.value = sender.sortOption
     }
 }
 
@@ -104,11 +88,11 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = resultCollectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
         
-        header.selectedSortOption = self.searchSort
+        header.selectedSortOption = self.viewModel.inputSortOption.value
         
         header.subviews.forEach { view in
             let button = view as! SortOptionButton
-            if button.sortOption == self.searchSort {
+            if button.sortOption == self.viewModel.inputSortOption.value {
                 button.isSelect = true
             }
             button.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
@@ -121,25 +105,20 @@ extension SearchResultViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return searchData?.items.count ?? 0
+        return self.viewModel.outputData.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
         
-        if let data = searchData?.items[indexPath.row]{
-            let url = URL(string: data.image)
-            cell.imageView.kf.setImage(with: url)
-            cell.itemNameLabel.text = removeBoldTag(data.itemName)
-            cell.mallNameLabel.text = data.mallName
-            cell.priceLabel.text = Int(data.lowPrice)!.formatted()
-        }
+        let url = URL(string: self.viewModel.outputData.value[indexPath.row].image)
+        cell.imageView.kf.setImage(with: url)
+        cell.itemNameLabel.text = removeBoldTag(self.viewModel.outputData.value[indexPath.row].itemName)
+        cell.mallNameLabel.text = self.viewModel.outputData.value[indexPath.row].mallName
+        cell.priceLabel.text = Int(self.viewModel.outputData.value[indexPath.row].lowPrice)!.formatted()
         
-        if (indexPath.item + 2) == networkManager.getPageOffset() {
-            networkManager.naverShoppingSearchRequest { data in
-                self.searchData?.items += data.items
-            }
-        }
+        self.viewModel.inputPagination.value = indexPath.item
+        
         return cell
     }
 }
