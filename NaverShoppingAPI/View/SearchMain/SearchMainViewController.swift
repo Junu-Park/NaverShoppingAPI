@@ -9,22 +9,41 @@ import UIKit
 
 import SnapKit
 
-class SearchMainViewController: CustomViewController {
+final class SearchMainViewController: CustomViewController {
 
-    let mainImageView: UIImageView = {
+    private let mainImageView: UIImageView = {
         let iv: UIImageView = UIImageView()
         iv.image = UIImage(resource: .wallet)
         iv.contentMode = .scaleAspectFit
         return iv
     }()
     
+    private let viewModel: SearchMainViewModel = SearchMainViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureNavigationItem()
+        
+        self.viewModel.outputQuery.closure = { [weak self] query in
+            self?.view.endEditing(true)
+            let nextVC = SearchResultViewController()
+            nextVC.searchTerm = query
+            self?.navigationController?.pushViewController(nextVC, animated: true)
+            self?.navigationItem.searchController?.searchBar.text = nil
+        }
+        
+        self.viewModel.outputAlert.closure = { [weak self] _ in
+            if let self {
+                self.present(self.setActionSheet {
+                    // TODO: becomeFirstResponder에 대해 알아보기
+                    self.navigationItem.searchController?.searchBar.becomeFirstResponder()
+                }, animated: true)
+            }
+        }
     }
     
-    func configureNavigationItem() {
+    private func configureNavigationItem() {
         navigationItem.title = "아서의 쇼핑쇼핑"
         navigationItem.backButtonDisplayMode = .minimal
         navigationItem.searchController = CustomSearchController(searchResultsController: nil)
@@ -48,20 +67,8 @@ class SearchMainViewController: CustomViewController {
 // TODO: UISearchBarDelegate / UISearchTextFieldDelegate 중에 뭘 사용해야할까?
 extension SearchMainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), text.count > 1 {
-            view.endEditing(true)
-            let nextVC = SearchResultViewController()
-            nextVC.searchTerm = text
-            navigationController?.pushViewController(nextVC, animated: true)
-            textField.text = nil
-            return true
-        } else {
-            present(setActionSheet {
-                // TODO: becomeFirstResponder에 대해 알아보기
-                self.navigationItem.searchController?.searchBar.searchTextField.becomeFirstResponder()
-            }, animated: true)
-            return false
-        }
+        self.viewModel.inputQuery.value = textField.text
+        return true
     }
 }
 
