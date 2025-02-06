@@ -30,14 +30,12 @@ enum SortOption: String {
 class NetworkManager {
     static let shared = NetworkManager()
     
-    private var totalCount: Int = 0
-    
     private var query: String = ""
     private var queryURLString: String {
         return "query=\(query)"
     }
     
-    private var displayPerPage: Int = 30
+    private var displayPerPage: Int = 100
     private var displayPerPageURLString: String {
         return "display=\(displayPerPage)"
     }
@@ -71,9 +69,6 @@ class NetworkManager {
         AF.request(urlString, method: .get, headers: headers).validate(statusCode: 200..<300).responseDecodable(of: SearchResult.self) { response in
             switch response.result {
             case .success(let data):
-                if self.totalCount == 0 {
-                    self.totalCount = data.totalCount
-                }
                 self.pageOffset += self.displayPerPage
                 completionHandler(data)
             case .failure(let error):
@@ -90,10 +85,6 @@ class NetworkManager {
         self.query = term
     }
     
-    func getTotalCount() -> Int {
-        return self.totalCount
-    }
-    
     func getPageOffset() -> Int {
         return self.pageOffset
     }
@@ -102,7 +93,6 @@ class NetworkManager {
         self.query = ""
         self.pageOffset = 1
         self.sort = .accuracy
-        self.totalCount = 0
     }
     
     func resetSharedDataWithChangeSort(sort: SortOption) {
