@@ -44,7 +44,7 @@ final class SearchMainViewController: CustomViewController {
     }
     
     private func configureNavigationItem() {
-        navigationItem.title = "아서의 쇼핑쇼핑"
+        navigationItem.title = "준우의 쇼핑쇼핑"
         navigationItem.backButtonDisplayMode = .minimal
         navigationItem.searchController = CustomSearchController(searchResultsController: nil)
         navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
