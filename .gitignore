@@ -1,1 +1,7 @@
+# 파일
 APIKey.swift
+xcschememanagement.plist
+
+# 폴더
+xcshareddata/
+xcdebugger/
