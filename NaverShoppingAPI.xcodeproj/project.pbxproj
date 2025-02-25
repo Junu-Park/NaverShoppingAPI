@@ -11,6 +11,8 @@
 		5155445F2D37E2AC0009C664 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5155445E2D37E2AC0009C664 /* .gitignore */; };
 		515544882D37F4F80009C664 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 515544872D37F4F80009C664 /* Alamofire */; };
 		515544B12D3801280009C664 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 515544B02D3801280009C664 /* Kingfisher */; };
+		515D03B22D6DE10000714D39 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 515D03B12D6DE10000714D39 /* RxCocoa */; };
+		515D03B42D6DE10000714D39 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 515D03B32D6DE10000714D39 /* RxSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,8 @@
 			files = (
 				515544B12D3801280009C664 /* Kingfisher in Frameworks */,
 				515543ED2D37BA6F0009C664 /* SnapKit in Frameworks */,
+				515D03B42D6DE10000714D39 /* RxSwift in Frameworks */,
+				515D03B22D6DE10000714D39 /* RxCocoa in Frameworks */,
 				515544882D37F4F80009C664 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,6 +97,8 @@
 				515543EC2D37BA6F0009C664 /* SnapKit */,
 				515544872D37F4F80009C664 /* Alamofire */,
 				515544B02D3801280009C664 /* Kingfisher */,
+				515D03B12D6DE10000714D39 /* RxCocoa */,
+				515D03B32D6DE10000714D39 /* RxSwift */,
 			);
 			productName = NaverShoppingAPI;
 			productReference = 5155436F2D3799B00009C664 /* NaverShoppingAPI.app */;
@@ -126,6 +132,7 @@
 				515543EB2D37BA6F0009C664 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				515544862D37F4F80009C664 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				515544AF2D3801280009C664 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				515D03B02D6DE10000714D39 /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 515543702D3799B00009C664 /* Products */;
@@ -390,6 +397,14 @@
 				minimumVersion = 8.1.3;
 			};
 		};
+		515D03B02D6DE10000714D39 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.9.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -407,6 +422,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 515544AF2D3801280009C664 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		515D03B12D6DE10000714D39 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 515D03B02D6DE10000714D39 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		515D03B32D6DE10000714D39 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 515D03B02D6DE10000714D39 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
