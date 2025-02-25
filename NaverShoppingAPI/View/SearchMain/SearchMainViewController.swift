@@ -7,6 +7,8 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import SnapKit
 
 final class SearchMainViewController: CustomViewController {
@@ -18,29 +20,14 @@ final class SearchMainViewController: CustomViewController {
         return iv
     }()
     
-    private let viewModel: SearchMainViewModel = SearchMainViewModel()
+    private let viewModelRx: SearchMainViewModelRx = SearchMainViewModelRx()
+    private let disposeBag: DisposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureNavigationItem()
-        
-        self.viewModel.outputQuery.closure = { [weak self] query in
-            self?.view.endEditing(true)
-            let nextVC = SearchResultViewController()
-            nextVC.viewModel.inputQuery.value = query
-            self?.navigationController?.pushViewController(nextVC, animated: true)
-            self?.navigationItem.searchController?.searchBar.text = nil
-        }
-        
-        self.viewModel.outputAlert.closure = { [weak self] _ in
-            if let self {
-                self.present(self.setActionSheet {
-                    // TODO: becomeFirstResponder에 대해 알아보기
-                    self.navigationItem.searchController?.searchBar.becomeFirstResponder()
-                }, animated: true)
-            }
-        }
+        self.bind()
     }
     
     private func configureNavigationItem() {
@@ -48,7 +35,6 @@ final class SearchMainViewController: CustomViewController {
         navigationItem.backButtonDisplayMode = .minimal
         navigationItem.searchController = CustomSearchController(searchResultsController: nil)
         navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
-        navigationItem.searchController?.searchBar.searchTextField.delegate = self
     }
     
     override func configureHierarchy() {
@@ -62,13 +48,32 @@ final class SearchMainViewController: CustomViewController {
             make.height.equalTo(mainImageView.snp.width)
         }
     }
-}
-
-// TODO: UISearchBarDelegate / UISearchTextFieldDelegate 중에 뭘 사용해야할까?
-extension SearchMainViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.viewModel.inputQuery.value = textField.text
-        return true
+    
+    private func bind() {
+        
+        let searchText = PublishRelay<String>()
+        
+        self.navigationItem.searchController?.searchBar.rx.searchButtonClicked
+            .flatMap { self.navigationItem.searchController!.searchBar.rx.text.orEmpty }
+            .bind(to: searchText)
+            .disposed(by: self.disposeBag)
+        
+        let input = SearchMainViewModelRx.Input(searchText: searchText)
+        let output = self.viewModelRx.transform(input: input)
+        
+        output.isValidSearchText
+            .drive(with: self) { owner, value in
+                if value {
+                    owner.view.endEditing(true)
+                    let nextVC = SearchResultViewController()
+                    nextVC.viewModel.inputQuery.value = owner.navigationItem.searchController!.searchBar.text!
+                    owner.navigationController?.pushViewController(nextVC, animated: true)
+                    owner.navigationItem.searchController?.searchBar.text = nil
+                } else {
+                    owner.present(owner.setActionSheet { owner.navigationItem.searchController?.searchBar.becomeFirstResponder() }, animated: true)
+                }
+            }
+            .disposed(by: self.disposeBag)
     }
 }
 
