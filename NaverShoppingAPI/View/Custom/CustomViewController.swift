@@ -14,6 +14,10 @@ protocol CustomViewControllerProtocol {
 
 class CustomViewController: UIViewController, CustomViewControllerProtocol {
     
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
@@ -25,5 +29,10 @@ class CustomViewController: UIViewController, CustomViewControllerProtocol {
     }
     
     func configureLayout() {
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

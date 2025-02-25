@@ -66,8 +66,7 @@ final class SearchMainViewController: CustomViewController {
             .drive(with: self) { owner, value in
                 if value {
                     owner.view.endEditing(true)
-                    let nextVC = SearchResultViewController()
-                    nextVC.viewModel.inputQuery.value = owner.navigationItem.searchController!.searchBar.text!
+                    let nextVC = SearchResultViewController(searchText: owner.navigationItem.searchController!.searchBar.text!)
                     owner.navigationController?.pushViewController(nextVC, animated: true)
                     owner.navigationItem.searchController?.searchBar.text = nil
                 } else {

@@ -21,7 +21,12 @@ final class SearchResultViewController: CustomViewController {
     
     private lazy var resultCollectionView: SearchResultCollectionView = SearchResultCollectionView(superView: view)
     
-    let viewModel: SearchResultViewModel = SearchResultViewModel()
+    var searchText: String
+    
+    init(searchText: String) {
+        self.searchText = searchText
+        super.init()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
