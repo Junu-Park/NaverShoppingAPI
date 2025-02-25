@@ -54,8 +54,9 @@ final class SearchMainViewController: CustomViewController {
         let searchText = PublishRelay<String>()
         
         self.navigationItem.searchController?.searchBar.rx.searchButtonClicked
-            .flatMap { self.navigationItem.searchController!.searchBar.rx.text.orEmpty }
-            .bind(to: searchText)
+            .bind(with: self) { owner, _ in
+                searchText.accept(self.navigationItem.searchController!.searchBar.text!)
+            }
             .disposed(by: self.disposeBag)
         
         let input = SearchMainViewModelRx.Input(searchText: searchText)
