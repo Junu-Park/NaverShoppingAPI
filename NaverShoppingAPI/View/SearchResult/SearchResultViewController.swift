@@ -8,7 +8,27 @@
 import UIKit
 
 import Kingfisher
+import RxCocoa
+import RxDataSources
+import RxSwift
 import SnapKit
+
+
+struct SearchResultCollectionViewSection {
+    let header: SortOption // Section 타이틀
+    var items: [Item] // Section 내의 Cell에 들어갈 정보
+}
+extension SearchResultCollectionViewSection: SectionModelType {
+    // Cell에 들어갈 정보를 의미
+//    typealias Item = String
+    // 타입 커스텀
+    typealias Item = SearchResultItem
+    
+    init(original: SearchResultCollectionViewSection, items: [Item]) {
+        self = original
+        self.items = items
+    }
+}
 
 final class SearchResultViewController: CustomViewController {
     
@@ -22,6 +42,9 @@ final class SearchResultViewController: CustomViewController {
     private lazy var resultCollectionView: SearchResultCollectionView = SearchResultCollectionView(superView: view)
     
     var searchText: String
+    private var sortOption: PublishRelay<SortOption> = PublishRelay<SortOption>()
+    private let viewModelRx: SearchResultViewModelRx = SearchResultViewModelRx()
+    private let disposeBag: DisposeBag = DisposeBag()
     
     init(searchText: String) {
         self.searchText = searchText
@@ -30,25 +53,51 @@ final class SearchResultViewController: CustomViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.connectionCollectionView()
-        
-        self.viewModel.outputQuery.bind { [weak self] query in
-            self?.navigationItem.title = query
-        }
-        
-        self.viewModel.outputData.closure = { [weak self] data in
-            
-            self?.resultCollectionView.reloadData()
-        }
-        
-        self.viewModel.outputTotal.bind { [weak self] count in
-            self?.resultCountLabel.text = "\(count.formatted()) 개의 검색 결과"
-        }
+        self.configureView()
+        self.bind()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        self.viewModel.inputReset.value = ()
+    private func bind() {
+        let dataSource = RxCollectionViewSectionedReloadDataSource<SearchResultCollectionViewSection> { dataSource, view, indexPath, item in
+            let cell = view.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
+            
+            let url = URL(string: item.image)
+            cell.imageView.kf.setImage(with: url)
+            cell.itemNameLabel.text = self.removeBoldTag(item.itemName)
+            cell.mallNameLabel.text = item.mallName
+            cell.priceLabel.text = Int(item.lowPrice)!.formatted()
+            
+            return cell
+        } configureSupplementaryView: { dataSource, view, kind, indexPath in
+            let header = view.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
+
+            header.selectedSortOption = dataSource.sectionModels[indexPath.section].header
+            header.subviews.forEach { view in
+                let button = view as! SortOptionButton
+                if button.sortOption == dataSource.sectionModels[indexPath.section].header {
+                    button.isSelect = true
+                }
+                button.rx.tap
+                    .bind(with: self) { owner, _ in
+                        owner.sortOption.accept(button.sortOption)
+                    }
+                    .disposed(by: self.disposeBag)
+            }
+            return header
+        }
+        
+        var input = SearchResultViewModelRx.Input()
+        input.searchText.accept(searchText)
+        input.searchTextWithSort = self.sortOption
+        
+        let output = viewModelRx.transform(input: input)
+        output.searchResult
+            .asObservable()
+            .withUnretained(self, resultSelector: { owner, value in
+                return [SearchResultCollectionViewSection(header: value.0, items: value.1)]
+            })
+            .bind(to: self.resultCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: self.disposeBag)
     }
     
     override func configureHierarchy() {
@@ -68,6 +117,10 @@ final class SearchResultViewController: CustomViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
+    
+    private func configureView() {
+        self.navigationItem.title = self.searchText
+    }
 }
 
 extension SearchResultViewController {
@@ -76,54 +129,5 @@ extension SearchResultViewController {
         var replacedString: String = string.replacingOccurrences(of: "<b>", with: "")
         replacedString = replacedString.replacingOccurrences(of: "</b>", with: "")
         return replacedString
-    }
-    
-    @objc func sortButtonTapped(_ sender: SortOptionButton) {
-        self.viewModel.inputSortOption.value = sender.sortOption
-    }
-}
-
-extension SearchResultViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
-    func connectionCollectionView() {
-        resultCollectionView.delegate = self
-        resultCollectionView.dataSource = self
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = resultCollectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
-        
-        header.selectedSortOption = self.viewModel.inputSortOption.value
-        
-        header.subviews.forEach { view in
-            let button = view as! SortOptionButton
-            if button.sortOption == self.viewModel.inputSortOption.value {
-                button.isSelect = true
-            }
-            button.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
-        }
-        return header
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 50)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.viewModel.outputData.value.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = resultCollectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
-        
-        let url = URL(string: self.viewModel.outputData.value[indexPath.row].image)
-        cell.imageView.kf.setImage(with: url)
-        cell.itemNameLabel.text = removeBoldTag(self.viewModel.outputData.value[indexPath.row].itemName)
-        cell.mallNameLabel.text = self.viewModel.outputData.value[indexPath.row].mallName
-        cell.priceLabel.text = Int(self.viewModel.outputData.value[indexPath.row].lowPrice)!.formatted()
-        
-        self.viewModel.inputPagination.value = indexPath.item
-        
-        return cell
     }
 }
