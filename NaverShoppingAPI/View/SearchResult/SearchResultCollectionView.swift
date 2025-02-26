@@ -15,7 +15,7 @@ class SearchResultCollectionView: UICollectionView {
         layout.scrollDirection = .vertical
         layout.itemSize = CGSize(width: (superView.frame.width - 48) / 2, height: superView.frame.height / 3.5)
         layout.sectionHeadersPinToVisibleBounds = true
-        
+        layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
         super.init(frame: .zero, collectionViewLayout: layout)
         
         register(SearchResultCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultCollectionViewCell.id)
