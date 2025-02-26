@@ -6,6 +6,7 @@
 //
 
 import Alamofire
+import RxSwift
 
 enum SortOption: String {
     case accuracy = "정확도"
@@ -25,6 +26,12 @@ enum SortOption: String {
             return "asc"
         }
     }
+}
+
+enum APIError: Error {
+    case invalidURL
+    case unknownResponse
+    case statusError
 }
 
 class NetworkManager {
@@ -75,6 +82,49 @@ class NetworkManager {
                 print(error)
             }
         }
+    }
+    
+    func naverShoppingSearchRequestWithRx(searchText: String, completionHandler: @escaping (SearchResult) -> ()) {
+        self.query = searchText
+        let urlString = APIURL.naverShoppingBaseURL + getQueryString(queryStrings: queryURLString, displayPerPageURLString, pageOffsetURLString, sortURLString)
+        let headers: HTTPHeaders = [
+            "X-Naver-Client-Id": APIKey.naverShoppingID,
+            "X-Naver-Client-Secret": APIKey.naverShoppingScret
+        ]
+        AF.request(urlString, method: .get, headers: headers).validate(statusCode: 200..<300).responseDecodable(of: SearchResult.self) { response in
+            switch response.result {
+            case .success(let data):
+                self.pageOffset += self.displayPerPage
+                completionHandler(data)
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    func naverShoppingSearchRequestWithRx(searchText: String) -> Single<Result<SearchResult, APIError>> {
+        return Single<Result<SearchResult, APIError>>.create { value in
+            self.query = searchText
+            let urlString = APIURL.naverShoppingBaseURL + self.getQueryString(queryStrings: self.queryURLString, self.displayPerPageURLString, self.pageOffsetURLString, self.sortURLString)
+            let headers: HTTPHeaders = [
+                "X-Naver-Client-Id": APIKey.naverShoppingID,
+                "X-Naver-Client-Secret": APIKey.naverShoppingScret
+            ]
+            AF.request(urlString, method: .get, headers: headers).validate(statusCode: 200..<300).responseDecodable(of: SearchResult.self) { response in
+                switch response.result {
+                case .success(let data):
+                    self.pageOffset += self.displayPerPage
+                    value(.success(.success(data)))
+                case .failure(let error):
+                    print(error)
+                    value(.success((.failure(.unknownResponse))))
+                }
+            }
+            return Disposables.create {
+                print("완료")
+            }
+        }
+        
     }
     
     private func getQueryString(queryStrings: String...) -> String {
