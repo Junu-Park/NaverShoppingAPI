@@ -35,6 +35,8 @@ final class SearchMainViewController: CustomViewController {
         navigationItem.backButtonDisplayMode = .minimal
         navigationItem.searchController = CustomSearchController(searchResultsController: nil)
         navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
+        let right = UIBarButtonItem(image: UIImage(systemName: "list.bullet.clipboard"), style: .done, target: self, action: #selector(self.transitionToList))
+        navigationItem.setRightBarButton(right, animated: true)
     }
     
     override func configureHierarchy() {
@@ -73,6 +75,10 @@ final class SearchMainViewController: CustomViewController {
                 }
             }
             .disposed(by: self.disposeBag)
+    }
+    
+    @objc private func transitionToList() {
+        self.navigationController?.pushViewController(ListCollectionViewController(), animated: true)
     }
 }
 
