@@ -22,12 +22,14 @@ struct SearchResult: Decodable {
 }
 
 struct SearchResultItem: Decodable {
+    var id: String
     var itemName: String
     var mallName: String
     var image: String
     var lowPrice: String
     
     enum CodingKeys: String, CodingKey {
+        case id = "productId"
         case itemName = "title"
         case mallName
         case image
