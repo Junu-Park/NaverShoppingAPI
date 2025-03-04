@@ -47,13 +47,12 @@ final class ListCollectionViewController: UIViewController {
         }
     }
     private func configureView() {
-        let sc = UISearchController(searchResultsController: nil)
-        sc.hidesNavigationBarDuringPresentation = false
-        sc.searchBar.delegate = self
+        self.navigationItem.searchController = CustomSearchController(searchResultsController: nil)
+        self.navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
         self.navigationItem.hidesSearchBarWhenScrolling = false
-        self.navigationItem.searchController = sc
+        self.navigationItem.searchController?.searchBar.delegate = self
         
-        self.view.backgroundColor = .systemBackground
+        self.view.backgroundColor = .black
     }
     private func configureCollectionViewLayout() {
         var layoutListConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
