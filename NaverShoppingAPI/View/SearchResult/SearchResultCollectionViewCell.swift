@@ -42,6 +42,14 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
         return lb
     }()
     
+    let likeButton: UIButton = {
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage(systemName: "heart")
+        config.baseForegroundColor = .systemRed
+        let btn = UIButton(configuration: config)
+        return btn
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -59,6 +67,7 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
         contentView.addSubview(mallNameLabel)
         contentView.addSubview(itemNameLabel)
         contentView.addSubview(priceLabel)
+        contentView.addSubview(self.likeButton)
     }
     
     func configureLayout() {
@@ -80,6 +89,11 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
         priceLabel.snp.makeConstraints { make in
             make.top.equalTo(itemNameLabel.snp.bottom).offset(4)
             make.horizontalEdges.equalToSuperview().inset(8)
+        }
+        
+        self.likeButton.snp.makeConstraints { make in
+            make.size.equalTo(self.imageView.snp.width).multipliedBy(0.2)
+            make.trailing.bottom.equalTo(self.imageView).offset(-4)
         }
     }
 }
