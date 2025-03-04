@@ -139,6 +139,10 @@ class NetworkManager {
         return self.pageOffset
     }
     
+    func resetPageOffset() {
+        self.pageOffset = 1
+    }
+    
     func resetAllSharedData() {
         self.query = ""
         self.pageOffset = 1

@@ -30,7 +30,8 @@ final class SearchResultViewModelRx {
             .subscribe { value in
                 switch value {
                 case .success(let result):
-                    searchResult.onNext((.accuracy,result.items))
+                    NetworkManager.shared.resetPageOffset()
+                    searchResult.onNext((.accuracy, result.items))
                 case .failure(let error):
                     searchResult.onNext((.accuracy,[]))
                 }
