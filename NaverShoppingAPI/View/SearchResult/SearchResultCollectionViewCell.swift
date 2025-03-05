@@ -44,10 +44,7 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
     }()
     
     let likeButton: UIButton = {
-        var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: "heart")
-        config.baseForegroundColor = .systemRed
-        let btn = UIButton(configuration: config)
+        let btn = UIButton()
         btn.tintColor = .systemRed
         return btn
     }()

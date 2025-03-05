@@ -80,9 +80,11 @@ final class SearchResultViewController: CustomViewController {
             cell.mallNameLabel.text = item.mallName
             cell.priceLabel.text = Int(item.lowPrice)!.formatted()
             if self?.likedList.contains(where: { $0.id == item.id }) ?? false {
-                cell.likeButton.imageView?.image = UIImage(systemName: "heart.fill")
+                cell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: [])
+//                cell.likeButton.imageView?.image = UIImage(systemName: "heart.fill")
             } else {
-                cell.likeButton.imageView?.image = UIImage(systemName: "heart")
+                cell.likeButton.setImage(UIImage(systemName: "heart"), for: [])
+//                cell.likeButton.imageView?.image = UIImage(systemName: "heart")
             }
             cell.likeButton.rx.tap
                 .map { item }
