@@ -15,7 +15,7 @@ private struct Wish: Hashable, Identifiable {
     let price: Int = Int.random(in: 234567...890123)
 }
 
-final class ListCollectionViewController: UIViewController {
+final class ListCollectionViewController: CustomViewController {
 
     private enum PriceType: CaseIterable {
         case low
@@ -30,33 +30,28 @@ final class ListCollectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.configureHierarchy()
-        self.configureLayout()
-        self.configureView()
+        
         self.configureCollectionViewLayout()
         self.configureCollectionViewDelegate()
         self.configureDiffableDataSource()
         self.updateSnapshot()
     }
-    private func configureHierarchy() {
+    override func configureHierarchy() {
         self.view.addSubview(self.collectionView)
     }
-    private func configureLayout() {
+    override func configureLayout() {
         self.collectionView.snp.makeConstraints { make in
             make.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
     }
-    private func configureView() {
+    override func configureView() {
         self.navigationItem.searchController = CustomSearchController(searchResultsController: nil)
         self.navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
         self.navigationItem.hidesSearchBarWhenScrolling = false
         self.navigationItem.searchController?.searchBar.delegate = self
-        
-        self.view.backgroundColor = .black
     }
     private func configureCollectionViewLayout() {
-        var layoutListConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-        layoutListConfiguration.backgroundColor = .systemYellow
+        let layoutListConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         let layout = UICollectionViewCompositionalLayout.list(using: layoutListConfiguration)
         
         self.collectionView.collectionViewLayout = layout
