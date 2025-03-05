@@ -7,6 +7,7 @@
 
 import Foundation
 
+import RealmSwift
 import RxCocoa
 import RxSwift
 
@@ -14,11 +15,13 @@ final class SearchResultViewModelRx {
     struct Input {
         let searchText: BehaviorRelay<String> = BehaviorRelay(value: "")
         var searchTextWithSort: PublishRelay<SortOption> = PublishRelay()
+        let likeButtonTapped: PublishRelay<SearchResultItem>
     }
     struct Output {
         let searchResult: Driver<(SortOption, [SearchResultItem])>
     }
     
+    private let realm: Realm = try! Realm()
     private let disposeBag: DisposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
@@ -61,7 +64,27 @@ final class SearchResultViewModelRx {
                 print("input.searchTextWithSort onDisposed")
             }
             .disposed(by: self.disposeBag)
-
+        
+        input.likeButtonTapped
+            .withLatestFrom(input.searchText, resultSelector: { value, text in
+                return (value, text)
+            })
+            .bind(with: self) { owner, value in
+                do {
+                    try self.realm.write {
+                        guard let data = self.realm.object(ofType: LikedItem.self, forPrimaryKey: value.0.id) else {
+                            self.realm.add(LikedItem(id: value.0.id, itemName: value.0.itemName, mallName: value.0.mallName, image: value.0.image, lowPrice: value.0.lowPrice))
+                            input.searchText.accept(value.1)
+                            return
+                        }
+                        self.realm.delete(data)
+                        input.searchText.accept(value.1)
+                    }
+                } catch {
+                    print("좋아요 버튼 로직 에러")
+                }
+            }
+            .disposed(by: self.disposeBag)
         
         return Output(searchResult: searchResult.asDriver(onErrorJustReturn: (SortOption.accuracy, [])))
     }

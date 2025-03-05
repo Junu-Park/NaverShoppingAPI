@@ -47,6 +47,7 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
         config.image = UIImage(systemName: "heart")
         config.baseForegroundColor = .systemRed
         let btn = UIButton(configuration: config)
+        btn.tintColor = .systemRed
         return btn
     }()
     

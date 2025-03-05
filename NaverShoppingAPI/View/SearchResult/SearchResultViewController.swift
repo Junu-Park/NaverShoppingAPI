@@ -8,6 +8,7 @@
 import UIKit
 
 import Kingfisher
+import RealmSwift
 import RxCocoa
 import RxDataSources
 import RxSwift
@@ -46,9 +47,15 @@ final class SearchResultViewController: CustomViewController {
     private let viewModelRx: SearchResultViewModelRx = SearchResultViewModelRx()
     private let disposeBag: DisposeBag = DisposeBag()
     
+    private let realm: Realm = try! Realm()
+    
+    private var likedList: Results<LikedItem>!
+    
     init(searchText: String) {
         self.searchText = searchText
         super.init()
+        
+        self.likedList = self.realm.objects(LikedItem.self)
     }
     
     override func viewDidLoad() {
@@ -58,6 +65,8 @@ final class SearchResultViewController: CustomViewController {
     }
     
     private func bind() {
+        let likeButtonTapped = PublishRelay<SearchResultItem>()
+        
         let dataSource = RxCollectionViewSectionedReloadDataSource<SearchResultCollectionViewSection> { dataSource, view, indexPath, item in
             let cell = view.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
             
@@ -66,7 +75,15 @@ final class SearchResultViewController: CustomViewController {
             cell.itemNameLabel.text = self.removeBoldTag(item.itemName)
             cell.mallNameLabel.text = item.mallName
             cell.priceLabel.text = Int(item.lowPrice)!.formatted()
-            
+            if self.likedList.contains(where: { $0.id == item.id }){
+                cell.likeButton.imageView?.image = UIImage(systemName: "heart.fill")
+            } else {
+                cell.likeButton.imageView?.image = UIImage(systemName: "heart")
+            }
+            cell.likeButton.rx.tap
+                .map { item }
+                .bind(to: likeButtonTapped)
+                .disposed(by: cell.disposeBag)
             return cell
         } configureSupplementaryView: { dataSource, view, kind, indexPath in
             let header = view.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
@@ -86,7 +103,7 @@ final class SearchResultViewController: CustomViewController {
             return header
         }
         
-        var input = SearchResultViewModelRx.Input()
+        var input = SearchResultViewModelRx.Input(likeButtonTapped: likeButtonTapped)
         input.searchText.accept(searchText)
         input.searchTextWithSort = self.sortOption
         
