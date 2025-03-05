@@ -58,6 +58,10 @@ final class SearchResultViewController: CustomViewController {
         self.likedList = self.realm.objects(LikedItem.self)
     }
     
+    deinit {
+        print("SearchResultViewController deinit")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.configureView()
@@ -67,15 +71,15 @@ final class SearchResultViewController: CustomViewController {
     private func bind() {
         let likeButtonTapped = PublishRelay<SearchResultItem>()
         
-        let dataSource = RxCollectionViewSectionedReloadDataSource<SearchResultCollectionViewSection> { dataSource, view, indexPath, item in
+        let dataSource = RxCollectionViewSectionedReloadDataSource<SearchResultCollectionViewSection> { [weak self] dataSource, view, indexPath, item in
             let cell = view.dequeueReusableCell(withReuseIdentifier: SearchResultCollectionViewCell.id, for: indexPath) as! SearchResultCollectionViewCell
             
             let url = URL(string: item.image)
             cell.imageView.kf.setImage(with: url)
-            cell.itemNameLabel.text = self.removeBoldTag(item.itemName)
+            cell.itemNameLabel.text = self?.removeBoldTag(item.itemName)
             cell.mallNameLabel.text = item.mallName
             cell.priceLabel.text = Int(item.lowPrice)!.formatted()
-            if self.likedList.contains(where: { $0.id == item.id }){
+            if self?.likedList.contains(where: { $0.id == item.id }) ?? false {
                 cell.likeButton.imageView?.image = UIImage(systemName: "heart.fill")
             } else {
                 cell.likeButton.imageView?.image = UIImage(systemName: "heart")
@@ -85,20 +89,20 @@ final class SearchResultViewController: CustomViewController {
                 .bind(to: likeButtonTapped)
                 .disposed(by: cell.disposeBag)
             return cell
-        } configureSupplementaryView: { dataSource, view, kind, indexPath in
+        } configureSupplementaryView: { [weak self] dataSource, view, kind, indexPath in
             let header = view.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SearchResultCollectionHeaderView.id, for: indexPath) as! SearchResultCollectionHeaderView
 
             header.selectedSortOption = dataSource.sectionModels[indexPath.section].header
-            header.subviews.forEach { view in
+            header.subviews.forEach { [weak self] view in
                 let button = view as! SortOptionButton
                 if button.sortOption == dataSource.sectionModels[indexPath.section].header {
                     button.isSelect = true
                 }
                 button.rx.tap
-                    .bind(with: self) { owner, _ in
+                    .bind(with: self ?? SearchResultViewController(searchText: "")) { owner, _ in
                         owner.sortOption.accept(button.sortOption)
                     }
-                    .disposed(by: self.disposeBag)
+                    .disposed(by: self?.disposeBag ?? DisposeBag())
             }
             return header
         }
