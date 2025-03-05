@@ -23,6 +23,10 @@ final class SearchMainViewController: CustomViewController {
     private let viewModelRx: SearchMainViewModelRx = SearchMainViewModelRx()
     private let disposeBag: DisposeBag = DisposeBag()
     
+    deinit {
+        print("SearchMainViewController deinit")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -37,6 +41,8 @@ final class SearchMainViewController: CustomViewController {
         navigationItem.searchController?.searchBar.searchTextField.textColor = UIColor.white
         let right = UIBarButtonItem(image: UIImage(systemName: "list.bullet.clipboard"), style: .done, target: self, action: #selector(self.transitionToList))
         navigationItem.setRightBarButton(right, animated: true)
+        let left = UIBarButtonItem(image: UIImage(systemName: "heart.text.clipboard"), style: .done, target: self, action: #selector(self.transitionToLikedList))
+        navigationItem.setLeftBarButton(left, animated: true)
     }
     
     override func configureHierarchy() {
@@ -79,6 +85,10 @@ final class SearchMainViewController: CustomViewController {
     
     @objc private func transitionToList() {
         self.navigationController?.pushViewController(ListCollectionViewController(), animated: true)
+    }
+    
+    @objc private func transitionToLikedList() {
+        self.navigationController?.pushViewController(LikedItemCollectionViewController(), animated: true)
     }
 }
 
