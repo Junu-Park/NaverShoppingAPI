@@ -7,6 +7,7 @@
 
 import UIKit
 
+import RxSwift
 import SnapKit
 
 class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewControllerProtocol {
@@ -50,6 +51,13 @@ class SearchResultCollectionViewCell: UICollectionViewCell, CustomViewController
         btn.tintColor = .systemRed
         return btn
     }()
+    
+    var disposeBag = DisposeBag()
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.disposeBag = DisposeBag()
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
