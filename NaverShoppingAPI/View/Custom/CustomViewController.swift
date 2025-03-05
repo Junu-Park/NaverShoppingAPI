@@ -23,12 +23,16 @@ class CustomViewController: UIViewController, CustomViewControllerProtocol {
         view.backgroundColor = .black
         configureHierarchy()
         configureLayout()
+        configureView()
     }
     
     func configureHierarchy() {
     }
     
     func configureLayout() {
+    }
+    
+    func configureView() {
     }
     
     @available(*, unavailable)

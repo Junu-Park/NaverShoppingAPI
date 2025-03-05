@@ -64,7 +64,7 @@ final class SearchResultViewController: CustomViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.configureView()
+        
         self.bind()
     }
     
@@ -139,7 +139,7 @@ final class SearchResultViewController: CustomViewController {
         }
     }
     
-    private func configureView() {
+    override func configureView() {
         self.navigationItem.title = self.searchText
     }
 }
